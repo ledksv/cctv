@@ -12,7 +12,7 @@
 1. Nmap → ports 22 (SSH) and 80 (HTTP)
 2. Web app: SecureVision → default creds `admin / admin` → ZoneMinder 1.37.63
 3. CVE-2024-51482 → blind time-based SQL injection → dump user hashes
-4. Crack bcrypt hash with hashcat + rockyou → SSH as `mark`
+4. Crack bcrypt hash with [Password Cracker](https://github.com/ledksv/pscracker) → SSH as `mark`
 5. SSH local port forward → internal motionEye on port 8765
 6. `/etc/motioneye/motion.conf` → admin hash in config
 7. CVE-2025-60787 → motionEye authenticated RCE → root shell
@@ -58,13 +58,21 @@ mark       : [redacted]
 
 ## 3. Hash Cracking
 
-Bcrypt (mode 3200) — slow at ~60 H/s CPU. Run against rockyou:
+Bcrypt (mode 3200) — slow at ~60 H/s CPU. Used [Password Cracker](https://github.com/ledksv/pscracker) — paste the hash and it auto-detects the type and runs hashcat with rockyou automatically:
 
-```bash
-hashcat -m 3200 mark.hash /usr/share/wordlists/rockyou.txt
+```
+  > [mark's bcrypt hash]
 
-Status: Cracked
-Result: [redacted]
+  [1] Checking encodings / ciphers... Nothing decodable.
+  [2] Online lookup...             Not found online.
+  [3] Identifying hash and cracking locally...
+      Type : Blowfish(OpenBSD)  |  wordlist only (slow hash)
+      → hashcat -m 3200
+
+  Session: Cracked  |  Speed: ~60 H/s  |  Time: ~1 min 40 secs
+
+  ✔  RESULT  →  [redacted]
+     Method : Blowfish(OpenBSD) (hashcat)
 ```
 
 ---
